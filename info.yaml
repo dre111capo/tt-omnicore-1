@@ -3,12 +3,12 @@ project:
   title:        "OmniCore-1"      # Project title
   author:       "Andrea Dotto"      # Your name
   discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  "4-bit Parallel In-Memory Computing Array"      # One line description of what your project does
+  description:  "64-bit Parallel IMC BNN Accelerator Core"      # One line description of what your project does
   language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
   clock_hz:     50000000       # Clock frequency in Hz (or 0 if not applicable)
 
   # How many tiles your design occupies? A single tile is about 167x108 uM.
-  tiles: "1x1"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
+  tiles: "2x2"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
 
   # Your top module name must start with "tt_um_". Make it unique by including your github username:
   top_module:  "tt_um_omnicore"
@@ -20,34 +20,34 @@ project:
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 pinout:
   # Inputs
-  ui[0]: "mode"
-  ui[1]: "data_in[0]"
-  ui[2]: "data_in[1]"
-  ui[3]: "data_in[2]"
-  ui[4]: "data_in[3]"
-  ui[5]: ""
-  ui[6]: ""
-  ui[7]: ""
+  ui[0]: "wbs_stb_i"
+  ui[1]: "wbs_cyc_i"
+  ui[2]: "wbs_we_i"
+  ui[3]: "wbs_adr_i[0]"
+  ui[4]: "wbs_adr_i[1]"
+  ui[5]: "wbs_adr_i[2]"
+  ui[6]: "wbs_adr_i[3]"
+  ui[7]: "wbs_adr_i[4]"
 
   # Outputs
-  uo[0]: "q_out[0]"
-  uo[1]: "q_out[1]"
-  uo[2]: "q_out[2]"
-  uo[3]: "q_out[3]"
-  uo[4]: ""
-  uo[5]: ""
-  uo[6]: ""
-  uo[7]: ""
+  uo[0]: "wbs_ack_o"
+  uo[1]: "popcount[0]"
+  uo[2]: "popcount[1]"
+  uo[3]: "popcount[2]"
+  uo[4]: "popcount[3]"
+  uo[5]: "popcount[4]"
+  uo[6]: "popcount[5]"
+  uo[7]: "popcount[6]"
 
   # Bidirectional pins
-  uio[0]: ""
-  uio[1]: ""
-  uio[2]: ""
-  uio[3]: ""
-  uio[4]: ""
-  uio[5]: ""
-  uio[6]: ""
-  uio[7]: ""
+  uio[0]: "wbs_dat[0]"
+  uio[1]: "wbs_dat[1]"
+  uio[2]: "wbs_dat[2]"
+  uio[3]: "wbs_dat[3]"
+  uio[4]: "wbs_dat[4]"
+  uio[5]: "wbs_dat[5]"
+  uio[6]: "wbs_dat[6]"
+  uio[7]: "wbs_dat[7]"
 
 # Do not change!
 yaml_version: 6
