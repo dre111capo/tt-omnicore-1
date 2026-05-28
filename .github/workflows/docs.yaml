@@ -13,8 +13,11 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Setup Typst
-        uses: typst-community/setup-typst@v3
+      - name: Install Typst
+        run: |
+          wget -q https://github.com/typst/typst/releases/download/v0.11.0/typst-x86_64-unknown-linux-musl.tar.xz
+          tar -xf typst-x86_64-unknown-linux-musl.tar.xz
+          sudo mv typst-x86_64-unknown-linux-musl/typst /usr/local/bin/
 
       - name: Build docs
         uses: TinyTapeout/tt-gds-action/docs@tt06
