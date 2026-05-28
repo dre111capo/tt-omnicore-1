@@ -181,12 +181,14 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    // Verify Registers: Read REG 1, REG 2, REG 3, REG 4 via page 0
+    // Verify Registers: Read REG 1, REG 2, REG 3 (page 0) and REG 4 (page 1)
     set_page(top.get(), 0);
-    uint32_t reg1 = read_word(top.get(), 0);
-    uint32_t reg2 = read_word(top.get(), 4);
-    uint32_t reg3 = read_word(top.get(), 8);
-    uint32_t reg4 = read_word(top.get(), 12);
+    uint32_t reg1 = read_word(top.get(), 4);  // REG 1 is at offset 4 (bytes 4-7)
+    uint32_t reg2 = read_word(top.get(), 8);  // REG 2 is at offset 8 (bytes 8-11)
+    uint32_t reg3 = read_word(top.get(), 12); // REG 3 is at offset 12 (bytes 12-15)
+
+    set_page(top.get(), 1);
+    uint32_t reg4 = read_word(top.get(), 0);  // REG 4 is at offset 0 of page 1
 
     std::cout << "==================================================" << std::endl;
     std::cout << "  EMULATION VERIFICATION RESULTS" << std::endl;
