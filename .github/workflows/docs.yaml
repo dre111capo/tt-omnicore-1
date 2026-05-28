@@ -13,5 +13,8 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Setup Typst
+        uses: typst-community/setup-typst@v3
+
       - name: Build docs
         uses: TinyTapeout/tt-gds-action/docs@tt06
