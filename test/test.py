@@ -3,7 +3,7 @@
 
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import ClockCycles
+from cocotb.triggers import ClockCycles, RisingEdge, FallingEdge
 
 @cocotb.test()
 async def test_project(dut):
@@ -29,7 +29,10 @@ async def test_project(dut):
     dut._log.info("Scrittura RAM: data_in = 1100, mode = 0")
     # ui_in[0] = 0 (mode), ui_in[4:1] = 4'b1100 (12 decimal) -> total ui_in = 12 << 1 = 24
     dut.ui_in.value = 24
-    await ClockCycles(dut.clk, 1)
+    
+    # Aspettiamo il fronte di salita per far campionare il dato ed il fronte di discesa per stabilità
+    await RisingEdge(dut.clk)
+    await FallingEdge(dut.clk)
     
     # Verifica che q_out (uo_out[3:0]) sia 4'b1100 (12 decimal)
     assert dut.uo_out.value & 0xF == 12, f"Errore scrittura RAM: atteso 12, ottenuto {dut.uo_out.value & 0xF}"
@@ -38,7 +41,10 @@ async def test_project(dut):
     dut._log.info("Calcolo In-Memory: data_in = 1010, mode = 1")
     # ui_in[0] = 1 (mode), ui_in[4:1] = 4'b1010 (10 decimal) -> total ui_in = (10 << 1) | 1 = 21
     dut.ui_in.value = 21
-    await ClockCycles(dut.clk, 1)
+    
+    # Aspettiamo il fronte di salita ed il fronte di discesa
+    await RisingEdge(dut.clk)
+    await FallingEdge(dut.clk)
 
     # Verifica che q_out (uo_out[3:0]) sia 4'b1100 AND 4'b1010 = 4'b1000 (8 decimal)
     assert dut.uo_out.value & 0xF == 8, f"Errore calcolo IMC AND: atteso 8, ottenuto {dut.uo_out.value & 0xF}"
