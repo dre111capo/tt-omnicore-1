@@ -3,12 +3,12 @@ project:
   title:        "OmniCore-1"      # Project title
   author:       "Andrea Dotto"      # Your name
   discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  "64-bit Parallel IMC BNN Accelerator Core"      # One line description of what your project does
+  description:  "32-bit Standalone IMC CPU with Multi-Cycle FSM"      # One line description of what your project does
   language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
-  clock_hz:     50000000       # Clock frequency in Hz (or 0 if not applicable)
+  clock_hz:     10000000       # Clock frequency in Hz (or 0 if not applicable)
 
   # How many tiles your design occupies? A single tile is about 167x108 uM.
-  tiles: "2x2"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
+  tiles: "4x2"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
 
   # Your top module name must start with "tt_um_". Make it unique by including your github username:
   top_module:  "tt_um_omnicore"
@@ -31,13 +31,13 @@ pinout:
 
   # Outputs
   uo[0]: "wbs_ack_o"
-  uo[1]: "popcount[0]"
-  uo[2]: "popcount[1]"
-  uo[3]: "popcount[2]"
-  uo[4]: "popcount[3]"
-  uo[5]: "popcount[4]"
-  uo[6]: "popcount[5]"
-  uo[7]: "popcount[6]"
+  uo[1]: "cpu_halted"
+  uo[2]: "pc[0]"
+  uo[3]: "pc[1]"
+  uo[4]: "pc[2]"
+  uo[5]: "pc[3]"
+  uo[6]: "pc[4]"
+  uo[7]: "run_cpu"
 
   # Bidirectional pins
   uio[0]: "wbs_dat[0]"
