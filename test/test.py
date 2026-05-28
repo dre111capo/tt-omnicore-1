@@ -88,12 +88,15 @@ async def test_project(dut):
     await ClockCycles(dut.clk, 2)
     dut._log.info("Reset Deasserted.")
 
-    # 2. Load the exact assembly program into inst_mem
-    # Instruction 0: LOAD_IMMED -> REG 1 = 5
-    inst0 = (1 << 28) | (1 << 25) | 5
+    # 2. Load the assembly program into inst_mem
+    # Note: To ensure REG 1 NAND REG 2 = 0xFFFFFFFF, we load 3 (0b0011) and 12 (0b1100).
+    # Since 3 and 12 are complementary (no common bits set), their NAND result is exactly 0xFFFFFFFF.
+    
+    # Instruction 0: LOAD_IMMED -> REG 1 = 3
+    inst0 = (1 << 28) | (1 << 25) | 3
     # Instruction 1: LOAD_IMMED -> REG 2 = 12
     inst1 = (1 << 28) | (2 << 25) | 12
-    # Instruction 2: IMC_NAND -> REG 3 = REG 1 NAND REG 2 (5 NAND 12 = 0xFFFFFFFF)
+    # Instruction 2: IMC_NAND -> REG 3 = REG 1 NAND REG 2 (3 NAND 12 = 0xFFFFFFFF)
     inst2 = (3 << 28) | (3 << 25) | (1 << 22) | (2 << 19)
     # Instruction 3: BRANCH_ZERO -> Check REG 4. Since REG 4 is 0, branch to Instruction 5
     inst3 = (4 << 28) | (4 << 22) | 5
@@ -148,7 +151,7 @@ async def test_project(dut):
 
     # Assertions
     assert reg3_val == 0xFFFFFFFF, f"REG 3 NAND mismatch: expected 0xFFFFFFFF, got {hex(reg3_val)}"
-    assert reg1_val == 5, f"REG 1 mismatch: expected 5 (no shift), got {reg1_val}"
+    assert reg1_val == 3, f"REG 1 mismatch: expected 3 (no shift), got {reg1_val}"
     assert reg2_val == 12, f"REG 2 mismatch: expected 12, got {reg2_val}"
     assert reg4_val == 0, f"REG 4 mismatch: expected 0, got {reg4_val}"
 
