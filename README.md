@@ -1,41 +1,69 @@
-![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg)
+# OmniCore-1: 32-bit Standalone In-Memory Computing (IMC) CPU
 
-# Tiny Tapeout Verilog Project Template
+OmniCore-1 is a 32-bit standalone CPU built for the SkyWater 130nm process node (Tiny Tapeout 08). It features In-Memory Computing (IMC) capabilities, allowing logical computations to occur directly inside the register file cells rather than moving data to/from a separate ALU, eliminating the Von Neumann bottleneck.
 
-- [Read the documentation for project](docs/info.md)
+---
 
-## What is Tiny Tapeout?
+## 1. System Architecture & Multi-Cycle FSM
 
-TinyTapeout is an educational project that aims to make it easier and cheaper than ever to get your digital designs manufactured on a real chip.
+OmniCore-1 is a standalone CPU running a 5-state control engine (FSM) operating at 10 MHz:
+* **IDLE**: The CPU waits for the host to assert `run_cpu = 1` via the Wishbone Control register.
+* **FETCH**: Fetches the 32-bit instruction from dedicated `inst_mem` at the address pointed by `PC`.
+* **DECODE**: Decodes opcode, registers, and immediate fields.
+* **EXECUTE**: Executes the instruction. IMC operations (NAND, NOR) are multi-cycle (taking 2 execution cycles) to guarantee timing closure on SkyWater 130nm.
+* **WRITE_BACK**: Writes result to the register, increments `PC`, and loops back to Fetch (or Idle if Halted).
 
-To learn more and get started, visit https://tinytapeout.com.
+---
 
-## Verilog Projects
+## 2. Wishbone Page Multiplexing (Pages 0 to 10)
 
-1. Add your Verilog files to the `src` folder.
-2. Edit the [info.yaml](info.yaml) and update information about your project, paying special attention to the `source_files` and `top_module` properties. If you are upgrading an existing Tiny Tapeout project, check out our [online info.yaml migration tool](https://tinytapeout.github.io/tt-yaml-upgrade-tool/).
-3. Edit [docs/info.md](docs/info.md) and add a description of your project.
-4. Optionally, add a testbench to the `test` folder. See [test/README.md](test/README.md) for more information.
+Due to TT08 pinout limitations, the 32-bit register file, instruction memory, and control registers are mapped to an 8-bit Wishbone slave interface using a **Page Register (`0x1F`)**.
 
-The GitHub action will automatically build the ASIC files using [OpenLane](https://www.zerotoasiccourse.com/terminology/openlane/).
+To access a register or memory location, write the page index to address `0x1F` first:
 
-## Enable GitHub actions to build the results page
+| Page Index | Address Range | Target Access |
+| :---: | :---: | :--- |
+| **`0`** | `0x00 - 0x0F` | Data Registers **REG 0 - REG 3** (read/write byte-by-byte, little-endian) |
+| **`1`** | `0x00 - 0x0F` | Data Registers **REG 4 - REG 7** (read/write byte-by-byte, little-endian) |
+| **`2`** | `0x00 - 0x0F` | Instruction Memory words **0 - 3** |
+| **`3`** | `0x00 - 0x0F` | Instruction Memory words **4 - 7** |
+| **`4`** | `0x00 - 0x0F` | Instruction Memory words **8 - 11** |
+| **`5`** | `0x00 - 0x0F` | Instruction Memory words **12 - 15** |
+| **`6`** | `0x00 - 0x0F` | Instruction Memory words **16 - 19** |
+| **`7`** | `0x00 - 0x0F` | Instruction Memory words **20 - 23** |
+| **`8`** | `0x00 - 0x0F` | Instruction Memory words **24 - 27** |
+| **`9`** | `0x00 - 0x0F` | Instruction Memory words **28 - 31** |
+| **`10`** | `0x00` | Control & Status Register (`run_cpu` at bit 0, `halted` status) |
 
-- [Enabling GitHub Pages](https://tinytapeout.com/faq/#my-github-action-is-failing-on-the-pages-part)
+---
 
-## Resources
+## 3. Instruction Set Architecture (ISA)
 
-- [FAQ](https://tinytapeout.com/faq/)
-- [Digital design lessons](https://tinytapeout.com/digital_design/)
-- [Learn how semiconductors work](https://tinytapeout.com/siliwiz/)
-- [Join the community](https://tinytapeout.com/discord)
-- [Build your design locally](https://docs.google.com/document/d/1aUUZ1jthRpg4QURIIyzlOaPWlmQzr-jBn3wZipVUPt4)
+OmniCore-1 uses a custom 32-bit instruction format:
+```
+[31:28] Opcode | [27:25] Reg Dest | [24:22] Reg Src1 | [21:19] Reg Src2 | [18:0] Immediate / Offset
+```
 
-## What next?
+### Supported Opcodes
+| Mnemonic | Opcode (Hex) | Description |
+| :--- | :---: | :--- |
+| **HALT** | `4'h0` | Stops CPU execution and asserts `cpu_halted` pin. |
+| **LOAD_IMMED** | `4'h1` | Loads 19-bit immediate into `Reg Dest` (sign-extended to 32-bit). |
+| **OP_ADD** | `4'h2` | Standard Addition: `Reg Dest = Reg Src1 + Reg Src2` |
+| **OP_IMC_NAND** | `4'h3` | In-Memory NAND: `Reg Dest = Reg Src1 NAND Reg Src2` (2 cycles). |
+| **BRANCH_ZERO** | `4'h4` | Branches to immediate instruction index if `Reg Dest == 0`. |
+| **OP_IMC_NOR** | `4'h5` | In-Memory NOR: `Reg Dest = Reg Src1 NOR Reg Src2` (2 cycles). |
+| **SHIFT_LEFT** | `4'h6` | Shifts `Reg Dest` left by value in `Reg Src1`. |
 
-- [Submit your design to the next shuttle](https://app.tinytapeout.com/).
-- Edit [this README](README.md) and explain your design, how it works, and how to test it.
-- Share your project on your social network of choice:
-  - LinkedIn [#tinytapeout](https://www.linkedin.com/search/results/content/?keywords=%23tinytapeout) [@TinyTapeout](https://www.linkedin.com/company/100708654/)
-  - Mastodon [#tinytapeout](https://chaos.social/tags/tinytapeout) [@matthewvenn](https://chaos.social/@matthewvenn)
-  - X (formerly Twitter) [#tinytapeout](https://twitter.com/hashtag/tinytapeout) [@matthewvenn](https://twitter.com/matthewvenn)
+---
+
+## 4. Hardware Configuration & Signoff
+
+* **Target Process**: SkyWater 130nm
+* **Area**: 4x2 Tiles
+* **Clock Frequency**: 10 MHz
+* **Signoff Compliance**:
+  - `RUN_ANTENNA_CHECKER`: 1
+  - `GRT_REPAIR_ANTENNAS`: 1
+  - `DIODE_INSERTION_STRATEGY`: 3
+  - `PL_TARGET_DENSITY`: 0.40 (mitigates routing congestion to allow auto-insertion of antenna protection diodes).

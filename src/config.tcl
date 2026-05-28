@@ -12,7 +12,7 @@
 
 # PL_TARGET_DENSITY - You can increase this if Global Placement fails with error GPL-0302.
 # Users have reported that values up to 0.8 worked well for them.
-set ::env(PL_TARGET_DENSITY) 0.55
+set ::env(PL_TARGET_DENSITY) 0.40
 
 # CLOCK_PERIOD - Increase this in case you are getting setup time violations.
 # The value is in nanoseconds, so 20ns == 50MHz.
@@ -26,10 +26,10 @@ set ::env(GLB_RESIZER_HOLD_SLACK_MARGIN) 0.05
 set ::env(RUN_LINTER) 1
 set ::env(LINTER_INCLUDE_PDK_MODELS) 1
 
-# Disable antenna checks and diode insertion to bypass OpenROAD global routing crash
-set ::env(GRT_ANT_ITERS) 0
-set ::env(DIODE_INSERTION_STRATEGY) 0
-set ::env(RUN_ANTENNA_CHECKER) 0
+# Enable antenna checks and repair strategy 3 for physical sign-off compliance
+set ::env(GRT_REPAIR_ANTENNAS) 1
+set ::env(DIODE_INSERTION_STRATEGY) 3
+set ::env(RUN_ANTENNA_CHECKER) 1
 
 # Configuration docs: https://openlane.readthedocs.io/en/latest/reference/configuration.html
 
