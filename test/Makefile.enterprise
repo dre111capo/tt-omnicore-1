@@ -1,0 +1,37 @@
+# Makefile for OmniCore-Enterprise 64-bit hardware emulation
+# Usage: make -f test/Makefile.enterprise all
+
+VERILATOR = verilator
+CXX = g++
+
+SRC_DIR = src
+TEST_DIR = test
+OBJ_DIR = obj_dir_enterprise
+BIN_DIR = bin
+
+TARGET = $(BIN_DIR)/omnicore_enterprise_sim
+RTL_SRC = $(SRC_DIR)/tt_um_omnicore_enterprise.v
+SIM_SRC = $(TEST_DIR)/sim_enterprise_main.cpp
+
+.PHONY: all run clean
+
+all: $(TARGET)
+
+$(TARGET): $(RTL_SRC) $(SIM_SRC)
+	@mkdir -p $(BIN_DIR)
+	@mkdir -p $(OBJ_DIR)
+	@echo "[VERILATOR] Compiling Verilog and C++ sources for Enterprise 64-bit CPU..."
+	$(VERILATOR) --cc --exe --build -O3 -Wall \
+		-Wno-fatal \
+		-I$(SRC_DIR) \
+		-Mdir $(OBJ_DIR) \
+		$(RTL_SRC) $(SIM_SRC) \
+		-o ../$(TARGET)
+	@echo "[SUCCESS] Built executable at $(TARGET)"
+
+run: all
+	@echo "[RUN] Executing Enterprise Virtual Motherboard..."
+	@./$(TARGET)
+
+clean:
+	rm -rf $(OBJ_DIR) $(TARGET)
